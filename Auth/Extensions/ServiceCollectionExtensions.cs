@@ -4,6 +4,7 @@ using Auth.Models;
 using Auth.Repositories;
 using Auth.Repositories.Interfaces;
 using Auth.Services;
+using Auth.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -53,7 +54,7 @@ namespace Auth.Extensions
 
 
 
-            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddSingleton<IEmailService, EmailService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IRolesService, RolesService>();
             services.AddScoped<IUserService, UserService>();

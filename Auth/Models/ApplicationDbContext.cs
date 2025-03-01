@@ -22,6 +22,7 @@ namespace Auth.Models
             builder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims", "Security");
 		}
         public DbSet<UnapprovedUserData> UnapprovedUsers { get; set; }
+        public DbSet<Email> Emails { get; set; }
 
 
 
