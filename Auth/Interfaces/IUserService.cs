@@ -7,5 +7,6 @@ namespace Auth.Interfaces
     {
         Task<bool> UpdateUser(EditUserViewModel model);
         Task<UnapprovedUserData> GetUser(string id);
+        Task<bool> DeleteUser(string id);
     }
 }

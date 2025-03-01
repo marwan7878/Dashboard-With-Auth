@@ -20,19 +20,17 @@ namespace Auth.Controllers
             return View(_service.GetAllUnapprovedUserDataAsync());
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Reject(string id)
+        public JsonResult Reject(string id)
         {
             _service.RejectChangeRequest(id);
-            return RedirectToAction(nameof(Index));
+            return Json(true);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Approve(string id)
+        public JsonResult Approve(string id)
         {
             _service.ApproveChangeRequest(id);
-            return RedirectToAction(nameof(Index));
+            return Json(true);
         }
         public ActionResult Show(string id)
         {

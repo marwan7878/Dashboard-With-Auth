@@ -37,7 +37,7 @@
                 <td>
                     <a class="btn btn-secondary" asp-controller="Users" asp-action="Edit" asp-route-UserId="@user.Id">Edit</a>
                     <a class="btn btn-primary" asp-controller="Users" asp-action="Read" asp-route-UserId="@user.Id">Read</a>
-                    <button id="deleteBtn" data-flag="@user.IsMine" class="btn btn-danger js-delete" data-id="@user.Id">Delete</button>
+                    <a data-flag="@user.IsMine" class="btn btn-danger" asp-controller="Users" asp-action="Delete" asp-route-userId="@user.Id">Delete</a>
                 </td>
             </tr>
         }
@@ -56,25 +56,7 @@
                 }
             });
         }
-        $('.js-delete').on('click', function () {
-            var btn = $(this);
-            $.ajax({
-                url: '/Users/delete/' + btn.data('id'),
-                method: 'DELETE',
-                success: function (response) {
-                    if (!response) {
-                        $('#reject-alert').removeClass('d-none');
-                    } else {
-                        btn.closest('tr').fadeOut(300, function () { $(this).remove(); });
-                        $('#alert').removeClass('d-none');
-                    }
-                },
-                error: function () {
-                    alert('This action is not allowed to you!');
-                }
-                            
-            });
-        });
+       
 
     </script>
 

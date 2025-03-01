@@ -23,5 +23,9 @@ namespace Auth.Services
         {
             return _repository.GetByIdAsync(id);
         }
+        public async Task<bool> DeleteUser(string id)
+        {
+            return await _repository.DeleteAsync(id);
+        }
     }
 }

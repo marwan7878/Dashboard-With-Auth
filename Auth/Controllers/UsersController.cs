@@ -49,45 +49,6 @@ namespace Auth.Controllers
             return View(users);
         }
 
-        public async Task<IActionResult> ManageRoles(string userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                return NotFound();
-            var roles = await _roleManager.Roles.ToListAsync();
-
-            var viewModel = new UserRolesViewModel
-            {
-                UserId = user.Id,
-                UserName = user.UserName,
-                Roles = roles.Select(role => new RoleViewModel
-                {
-                    RoleId = role.Id,
-                    RoleName = role.Name,
-                    IsSelected = _userManager.IsInRoleAsync(user, role.Name).Result
-                }).ToList()
-            };
-            return View(viewModel);
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ManageRoles(UserRolesViewModel model)
-        {
-            var user = await _userManager.FindByIdAsync(model.UserId);
-            if (user == null) return NotFound();
-
-            var userRoles = await _userManager.GetRolesAsync(user);
-            foreach (var role in model.Roles)
-            {
-                if (userRoles.Any(r => r == role.RoleName) && !role.IsSelected)
-                    await _userManager.RemoveFromRoleAsync(user, role.RoleName);
-                if (userRoles.Any(r => r != role.RoleName) && role.IsSelected)
-                    await _userManager.AddToRoleAsync(user, role.RoleName);
-                if (userRoles.Count == 0 && role.IsSelected)
-                    await _userManager.AddToRoleAsync(user, role.RoleName);
-            }
-            return RedirectToAction(nameof(Index));
-        }
         [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> Read(string userId)
         {
@@ -150,33 +111,33 @@ namespace Auth.Controllers
             return RedirectToAction(nameof(Index));
         }
         //remote attribute
-        public async Task<IActionResult> CheckEmail(string email)
-        {
-            if (await _userManager.FindByEmailAsync(email) == null)
-                return Json(true);
-            return Json(false);
-        }
-        public async Task<IActionResult> CheckUsername(string username)
-        {
-            if (await _userManager.FindByNameAsync(username) == null)
-                return Json(true);
-            return Json(false);
-        }
+        //public async Task<IActionResult> CheckEmail(string email)
+        //{
+        //    if (await _userManager.FindByEmailAsync(email) == null)
+        //        return Json(true);
+        //    return Json(false);
+        //}
+        //public async Task<IActionResult> CheckUsername(string username)
+        //{
+        //    if (await _userManager.FindByNameAsync(username) == null)
+        //        return Json(true);
+        //    return Json(false);
+        //}
 
-        public async Task<IActionResult> CheckEmailInEdit(string email, string id)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user != null && user != await _userManager.FindByIdAsync(id))
-                return Json(false);
-            return Json(true);
-        }
-        public async Task<IActionResult> CheckUsernameInEdit(string username, string id)
-        {
-            var user = await _userManager.FindByNameAsync(username);
-            if (user != null && user != await _userManager.FindByIdAsync(id))
-                return Json(false);
-            return Json(true);
-        }
+        //public async Task<IActionResult> CheckEmailInEdit(string email, string id)
+        //{
+        //    var user = await _userManager.FindByEmailAsync(email);
+        //    if (user != null && user != await _userManager.FindByIdAsync(id))
+        //        return Json(false);
+        //    return Json(true);
+        //}
+        //public async Task<IActionResult> CheckUsernameInEdit(string username, string id)
+        //{
+        //    var user = await _userManager.FindByNameAsync(username);
+        //    if (user != null && user != await _userManager.FindByIdAsync(id))
+        //        return Json(false);
+        //    return Json(true);
+        //}
 
 
         [Authorize]
@@ -240,11 +201,11 @@ namespace Auth.Controllers
                 return View(model);
             if (TempData["PendingRequest"] != null && (bool)TempData["PendingRequest"] == true)
             {
-                //if (await _changeRequestService.SaveUnapprovedUserDataAsync(model))
-                //{
-                //    return RedirectToAction(nameof(Index));
-                //}
-                //return View(model);
+                if (_changeRequestService.AddChangeRequest(model))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(model);
             }
             if (await _userService.UpdateUser(model))
             {
@@ -253,31 +214,15 @@ namespace Auth.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "SuperAdmin,Admin")]
-        public IActionResult ApproveChanges()
-        {
-            return View(_changeRequestService.GetAllUnapprovedUserDataAsync());
-        }
-
-        [HttpDelete]
+        
         [Authorize(Roles = "SuperAdmin")]
-        public async Task<IActionResult> Delete(string userId)
+        public async Task<IActionResult> DeleteAsync(string userId)
         {
-
             if (userId == _userManager.GetUserId(HttpContext.User))
-            {
-                return Json(false);
-            }
+                return RedirectToAction(nameof(Index));
+            await _userService.DeleteUser(userId);
+            return RedirectToAction(nameof(Index));
 
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return NotFound();
-
-            var result = await _userManager.DeleteAsync(user);
-            if (!result.Succeeded)
-            {
-                throw new Exception();
-            }
-            return Ok(true);
         }
     }
 }

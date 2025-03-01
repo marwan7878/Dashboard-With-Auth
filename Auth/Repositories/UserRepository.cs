@@ -54,5 +54,18 @@ namespace Auth.Repositories
                 return null;
             }
         }
+        public async Task<bool> DeleteAsync(string id)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                await _userManager.DeleteAsync(user);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

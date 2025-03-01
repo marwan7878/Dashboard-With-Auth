@@ -18,26 +18,26 @@ namespace Auth.Controllers.Api
             _userManager = userManager;
         }
         
-        [Route("Delete")]
-        [HttpDelete]
-        public async Task<IActionResult> Delete(string userId)
-        {
+        //[Route("Delete")]
+        //[HttpDelete]
+        //public async Task<IActionResult> Delete(string userId)
+        //{
 
-            if (userId == _userManager.GetUserId(HttpContext.User))
-            {
-                return Json(false);
-            }
+        //    if (userId == _userManager.GetUserId(HttpContext.User))
+        //    {
+        //        return Json(false);
+        //    }
 
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return NotFound();
+        //    var user = await _userManager.FindByIdAsync(userId);
+        //    if (user == null) return NotFound();
 
-            var result = await _userManager.DeleteAsync(user);
-            if (!result.Succeeded)
-            {
-                throw new Exception();
-            }
-            return Ok(true);
-        }
+        //    var result = await _userManager.DeleteAsync(user);
+        //    if (!result.Succeeded)
+        //    {
+        //        throw new Exception();
+        //    }
+        //    return Ok(true);
+        //}
         
     }
 }

@@ -7,6 +7,7 @@ namespace Auth.Repositories.Interfaces
     {
         Task<bool> Update(EditUserViewModel model);
         public Task<UnapprovedUserData> GetByIdAsync(string id);
+        public Task<bool> DeleteAsync(string id);
 
     }
 }

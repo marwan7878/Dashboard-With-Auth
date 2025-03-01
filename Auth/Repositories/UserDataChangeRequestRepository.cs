@@ -16,20 +16,12 @@ namespace Auth.Repositories
             _userManager = userManager;
         }
 
-        public async Task<bool> SaveAsync(EditUserViewModel model)
+        public async Task<bool> SaveAsync(UnapprovedUserData model)
         {
             try
             {
-                UnapprovedUserData unApprovedUserData = new UnapprovedUserData
-                {
-                    Id = model.Id,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Email = model.Email,
-                    Username = model.Username
-                };
-                _context.UnapprovedUsers.Remove(unApprovedUserData);
-                await _context.UnapprovedUsers.AddAsync(unApprovedUserData);
+                _context.UnapprovedUsers.Remove(model);
+                await _context.UnapprovedUsers.AddAsync(model);
                 await _context.SaveChangesAsync();
                 return true;
             }
@@ -46,7 +38,9 @@ namespace Auth.Repositories
         {
             try
             {
-                _context.UnapprovedUsers.Remove(GetById(id));
+                var model = GetById(id);
+                _context.UnapprovedUsers.Remove(model);
+                _context.SaveChanges();
                 return true;
             }
             catch

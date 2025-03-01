@@ -9,12 +9,10 @@ namespace Auth.Services
     public class UserDataChangeRequestService : IUserDataChangeRequestService
     {
         private readonly IUserDataChangeRequestRepository _repository;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUserService _userService;
-        public UserDataChangeRequestService(IUserDataChangeRequestRepository repository, UserManager<ApplicationUser> userManager, IUserService userService)
+        public UserDataChangeRequestService(IUserDataChangeRequestRepository repository, IUserService userService)
         {
             _repository = repository;
-            _userManager = userManager;
             _userService = userService;
         }
 
@@ -51,5 +49,26 @@ namespace Auth.Services
             return model;
         }
 
+        public bool AddChangeRequest(EditUserViewModel model)
+        {
+            try
+            {
+
+                UnapprovedUserData unapprovedUser = new UnapprovedUserData
+                {
+                    Id = model.Id,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    Username = model.Username,
+                };
+                _repository.SaveAsync(unapprovedUser);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
