@@ -2,6 +2,7 @@
 using Auth.Repositories.Interfaces;
 using Auth.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Repositories
 {
@@ -55,7 +56,7 @@ namespace Auth.Repositories
         }
         public UnapprovedUserData GetById(string id)
         {
-            return _context.UnapprovedUsers.Find(id);
+            return _context.UnapprovedUsers.FirstOrDefault(u => u.Id == id);
         }
     }
 }

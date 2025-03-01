@@ -36,8 +36,8 @@ namespace Auth.Controllers
         }
         public ActionResult Show(string id)
         {
-            var s = _service.ShowChangeRequest(id);
-            return View(_service.ShowChangeRequest(id));
+            var model = _service.ShowChangeRequest(id);
+            return View(model.Result);
         }
 
 

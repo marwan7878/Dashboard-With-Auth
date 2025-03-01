@@ -41,13 +41,14 @@ namespace Auth.Services
         }
         public async Task<UserDataChangeRequestVM> ShowChangeRequest(string id)
         {
-            var currentUserData = await _userService.GetUser(id);
+            var currentUserData = _userService.GetUser(id).Result;
             var newUserData = _repository.GetById(id);
-            return new UserDataChangeRequestVM
+            var model = new UserDataChangeRequestVM
             {
                 CurrentData = currentUserData,
                 NewData = newUserData,
             };
+            return model;
         }
 
     }
