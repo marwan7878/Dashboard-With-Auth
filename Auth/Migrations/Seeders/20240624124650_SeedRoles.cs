@@ -11,16 +11,22 @@ namespace Auth.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.InsertData(
-                schema:"Security",
-                table:"Roles",
-                columns: new [] {"Id", "Name" , "NormalizedName", "ConcurrencyStamp" },
-                values:new object[] { Guid.NewGuid().ToString(),"User","User".ToUpper(),Guid.NewGuid().ToString() }
+                schema: "Security",
+                table: "Roles",
+                columns: new[] { "Id", "Name", "NormalizedName", "ConcurrencyStamp" },
+                values: new object[] { Guid.NewGuid().ToString(), "SuperAdmin", "SuperAdmin".ToUpper(), Guid.NewGuid().ToString() }
                 );
             migrationBuilder.InsertData(
                 schema: "Security",
                 table: "Roles",
                 columns: new[] { "Id", "Name", "NormalizedName", "ConcurrencyStamp" },
                 values: new object[] { Guid.NewGuid().ToString(), "Admin", "Admin".ToUpper(), Guid.NewGuid().ToString() }
+                );
+            migrationBuilder.InsertData(
+                schema:"Security",
+                table:"Roles",
+                columns: new [] {"Id", "Name" , "NormalizedName", "ConcurrencyStamp" },
+                values:new object[] { Guid.NewGuid().ToString(),"Employee", "Employee".ToUpper(),Guid.NewGuid().ToString() }
                 );
         }
 

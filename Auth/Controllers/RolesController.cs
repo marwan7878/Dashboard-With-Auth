@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Controllers
 {
-    [Authorize(Roles = "Admin")]
 
     public class RolesController:Controller
     {
@@ -41,3 +40,4 @@ namespace Auth.Controllers
 
     }
 }
+

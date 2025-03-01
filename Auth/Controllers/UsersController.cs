@@ -1,34 +1,48 @@
-﻿using Auth.Models;
+﻿using Auth.Enums;
+using Auth.Interfaces;
+using Auth.Models;
+using Auth.Services;
 using Auth.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Auth.Controllers
 {
-    [Authorize(Roles ="Admin")]
+    [Authorize]
     public class UsersController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-
-        public UsersController(UserManager<ApplicationUser> userManager,RoleManager<IdentityRole> roleManager) 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IRolesService _rolesService;
+        private readonly IAuthService _authService;
+        private readonly IUserService _userService;
+        private readonly IUserDataChangeRequestService _changeRequestService;
+        public UsersController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor, IRolesService rolesService, IAuthService authService, IUserService userService, IUserDataChangeRequestService changeRequestService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _httpContextAccessor = httpContextAccessor;
+            _rolesService = rolesService;
+            _authService = authService;
+            _userService = userService;
+            _changeRequestService = changeRequestService;
         }
-        
+
         public async Task<IActionResult> Index()
         {
-            List<UserViewModel> users = await _userManager.Users.Select(user=> new UserViewModel
+            List<UserViewModel> users = await _userManager.Users.Select(user => new UserViewModel
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Username = user.UserName,
                 Email = user.Email,
-                Roles = _userManager.GetRolesAsync(user).Result,
+                Role = _userManager.GetRolesAsync(user).Result.FirstOrDefault(),
                 IsMine = user.Id == _userManager.GetUserId(HttpContext.User)
             }).ToListAsync();
 
@@ -60,26 +74,45 @@ namespace Auth.Controllers
         public async Task<IActionResult> ManageRoles(UserRolesViewModel model)
         {
             var user = await _userManager.FindByIdAsync(model.UserId);
-            if(user == null) return NotFound(); 
-            
+            if (user == null) return NotFound();
+
             var userRoles = await _userManager.GetRolesAsync(user);
             foreach (var role in model.Roles)
             {
-                if(userRoles.Any(r => r == role.RoleName) && !role.IsSelected)
-                    await _userManager.RemoveFromRoleAsync(user,role.RoleName);
-                if(userRoles.Any(r => r != role.RoleName) && role.IsSelected)
-                    await _userManager.AddToRoleAsync(user,role.RoleName);
+                if (userRoles.Any(r => r == role.RoleName) && !role.IsSelected)
+                    await _userManager.RemoveFromRoleAsync(user, role.RoleName);
+                if (userRoles.Any(r => r != role.RoleName) && role.IsSelected)
+                    await _userManager.AddToRoleAsync(user, role.RoleName);
                 if (userRoles.Count == 0 && role.IsSelected)
                     await _userManager.AddToRoleAsync(user, role.RoleName);
             }
             return RedirectToAction(nameof(Index));
         }
+        [Authorize(Roles = "SuperAdmin,Admin")]
+        public async Task<IActionResult> Read(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            var roles = await _roleManager.Roles.ToListAsync();
 
+            var userVM = new ReadUserViewModel
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Username = user.UserName,
+                Role = roles.Select(r => r.Name).FirstOrDefault()
+            };
+            return View(userVM);
+        }
+
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Create()
         {
-            var roles = await _roleManager.Roles.Select(role => new RoleViewModel { 
-                RoleId=role.Id,
-                RoleName=role.Name
+            var roles = await _roleManager.Roles.Select(role => new RoleViewModel
+            {
+                RoleId = role.Id,
+                RoleName = role.Name
             }).ToListAsync();
             var viewModel = new AddUserViewModel
             {
@@ -89,10 +122,11 @@ namespace Auth.Controllers
         }
         [HttpPost]
         [AutoValidateAntiforgeryToken]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Create(AddUserViewModel userVM)
         {
             if (!ModelState.IsValid) return View(userVM);
-            
+
             var user = new ApplicationUser
             {
                 UserName = userVM.Username,
@@ -101,17 +135,17 @@ namespace Auth.Controllers
                 LastName = userVM.LastName,
             };
             var result = await _userManager.CreateAsync(user, userVM.Password);
-            
-            if(!result.Succeeded)
+
+            if (!result.Succeeded)
             {
-                foreach(var error in  result.Errors)
+                foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError("Roles", error.Description);
                 }
                 return View(userVM);
             }
 
-            await _userManager.AddToRolesAsync(user, userVM.Roles.Where(r=>r.IsSelected).Select(r=>r.RoleName));
+            await _userManager.AddToRolesAsync(user, userVM.Roles.Where(r => r.IsSelected).Select(r => r.RoleName));
 
             return RedirectToAction(nameof(Index));
         }
@@ -129,74 +163,121 @@ namespace Auth.Controllers
             return Json(false);
         }
 
-        public async Task<IActionResult> Edit(string userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return NotFound();
-
-            var roles = await _roleManager.Roles.ToListAsync();
-            var userVM = new EditUserViewModel
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Username = user.UserName,
-                Roles = roles.Select(r => new RoleViewModel
-                {
-                    RoleId = r.Id,
-                    RoleName = r.Name,
-                    IsSelected = _userManager.IsInRoleAsync(user, r.Name).Result
-                }).ToList()
-            };
-            return View(userVM);
-        }
-        public async Task<IActionResult> CheckEmailInEdit(string email ,string id)
+        public async Task<IActionResult> CheckEmailInEdit(string email, string id)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null && user != await _userManager.FindByIdAsync(id))
-               return Json(false);
+                return Json(false);
             return Json(true);
         }
-        public async Task<IActionResult> CheckUsernameInEdit(string username ,string id)
+        public async Task<IActionResult> CheckUsernameInEdit(string username, string id)
         {
             var user = await _userManager.FindByNameAsync(username);
             if (user != null && user != await _userManager.FindByIdAsync(id))
-               return Json(false);
+                return Json(false);
             return Json(true);
+        }
+
+
+        [Authorize]
+        public async Task<IActionResult> Edit(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            var userRole = _rolesService.GetUserRoleByUserId(userId).Result;
+            var loggedinUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var loggedinUserRole = _rolesService.GetUserRoleByUserId(loggedinUser.Id).Result;
+            var roles = await _roleManager.Roles.ToListAsync();
+
+            if (loggedinUserRole.Name == Roles.SuperAdmin.ToString())
+            {
+                var userVM = new EditUserViewModel
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Username = user.UserName
+                };
+                return View(userVM);
+            }
+            else if (userRole.Name == Roles.Admin.ToString() && loggedinUser.Id == userId)
+            {
+                var userVM = new EditUserViewModel
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Username = user.UserName
+                };
+                return View(userVM);
+            }
+            else if (userRole.Name == Roles.Employee.ToString() && loggedinUser.Id == userId)
+            {
+                var userVM = new EditUserViewModel
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Username = user.UserName
+                };
+                TempData["PendingRequest"] = true;
+                return View(userVM);
+            }
+            else
+            {
+                return Forbid();
+            }
+
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Edit(EditUserViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
-
-            var user = await _userManager.FindByIdAsync(model.Id);
-
-            if (user == null) return NotFound();
-
-
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-            user.Email = model.Email;
-            user.UserName= model.Username;
-
-            await _userManager.UpdateAsync(user);
-
-            var userRoles = await _userManager.GetRolesAsync(user);
-            foreach (var role in model.Roles)
+            if (TempData["PendingRequest"] != null && (bool)TempData["PendingRequest"] == true)
             {
-                if (userRoles.Any(r => r == role.RoleName) && !role.IsSelected)
-                    await _userManager.RemoveFromRoleAsync(user, role.RoleName);
-                if (userRoles.Any(r => r != role.RoleName) && role.IsSelected)
-                    await _userManager.AddToRoleAsync(user, role.RoleName);
-                if(userRoles.Count == 0 && role.IsSelected)
-                    await _userManager.AddToRoleAsync(user, role.RoleName);
+                //if (await _changeRequestService.SaveUnapprovedUserDataAsync(model))
+                //{
+                //    return RedirectToAction(nameof(Index));
+                //}
+                //return View(model);
             }
-            return RedirectToAction(nameof(Index));
+            if (await _userService.UpdateUser(model))
+            {
+                return RedirectToAction(nameof(Index));
+            } 
+            return View(model);
         }
 
-       
+        [Authorize(Roles = "SuperAdmin,Admin")]
+        public IActionResult ApproveChanges()
+        {
+            return View(_changeRequestService.GetAllUnapprovedUserDataAsync());
+        }
+
+        [HttpDelete]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> Delete(string userId)
+        {
+
+            if (userId == _userManager.GetUserId(HttpContext.User))
+            {
+                return Json(false);
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new Exception();
+            }
+            return Ok(true);
+        }
     }
 }

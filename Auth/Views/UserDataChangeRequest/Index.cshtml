@@ -1,18 +1,11 @@
-﻿@model IEnumerable<UserViewModel>
+﻿@model List<UnapprovedUserData>
 
 
 @{
-    ViewData["Title"] = "Users";
+    ViewData["Title"] = "UnapprovedUserData";
 }
-<h1>Users</h1>
-<a class="btn btn-primary" asp-controller="Users" asp-action="Create">Add User</a>
+<h1>UnapprovedUserData</h1>
 
-<div id="alert" class="alert alert-success mt-2 p-2 d-none" role="alert">
-    User deleted.
-</div>
-<div id="reject-alert" class="alert alert-danger mt-2 p-2 d-none" role="alert">
-    Sorry , you can't delete your user.
-</div>
 
 <table class="table table-striped mt-4">
     <thead>
@@ -21,23 +14,21 @@
             <th>Last Name</th>
             <th>User Name</th>
             <th>Email</th>
-            <th>Role</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (UserViewModel user in Model)
+        @foreach (UnapprovedUserData user in Model)
         {
             <tr>
                 <td>@user.FirstName</td>
                 <td>@user.LastName</td>
                 <td>@user.Username</td>
                 <td>@user.Email</td>
-                <td>@user.Role</td>
                 <td>
-                    <a class="btn btn-secondary" asp-controller="Users" asp-action="Edit" asp-route-UserId="@user.Id">Edit</a>
-                    <a class="btn btn-primary" asp-controller="Users" asp-action="Read" asp-route-UserId="@user.Id">Read</a>
-                    <button id="deleteBtn" data-flag="@user.IsMine" class="btn btn-danger js-delete" data-id="@user.Id">Delete</button>
+                    <button id="approveBtn" class="btn btn-success" data-id="@user.Id">Approve</button>
+                    <button id="rejectBtn" class="btn btn-danger" data-id="@user.Id">Reject</button>
+                    <a class="btn btn-primary" asp-controller="UserDataChangeRequest" asp-action="Show" asp-route-id="@user.Id">Show</a>
                 </td>
             </tr>
         }
@@ -47,15 +38,7 @@
 
 @section Scripts {
     <script>
-        let btnn = document.getElementById("deleteBtn")
-        window.onload = function () {
-            // Iterate over all delete buttons
-            document.querySelectorAll('.js-delete').forEach(function (btnn) {
-                if (btnn.dataset.flag === 'True') {
-                    btnn.disabled = true;
-                }
-            });
-        }
+        
         $('.js-delete').on('click', function () {
             var btn = $(this);
             $.ajax({

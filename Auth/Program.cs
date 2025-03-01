@@ -1,3 +1,4 @@
+using Auth.Extensions;
 using Auth.Helpers;
 using Auth.Models;
 using Auth.Services;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Configuration;
 using System.Text;
 
 namespace Auth
@@ -16,46 +18,7 @@ namespace Auth
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			// Add services to the container.
-			var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-			builder.Services.AddDbContext<ApplicationDbContext>(options =>
-				options.UseSqlServer(connectionString));
-			builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-			builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
-			builder.Services.AddScoped<IAuthService, AuthService>();
-			builder.Services.AddAuthentication(options =>
-			{
-				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(o=>
-			{
-				o.RequireHttpsMetadata = false;
-				o.SaveToken = false;
-				o.TokenValidationParameters = new TokenValidationParameters
-				{
-					ValidateIssuerSigningKey = true,
-					ValidateIssuer = true,
-					ValidateAudience = true,
-					ValidateLifetime = true,
-					ValidIssuer = builder.Configuration["JWT:Issuer"],
-                    ValidAudience = builder.Configuration["JWT:Audience"],
-					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
-				};
-			}
-			);
-
-
-            builder.Services.AddIdentity<ApplicationUser,IdentityRole>(/*options => options.SignIn.RequireConfirmedAccount=true*/)
-				.AddEntityFrameworkStores<ApplicationDbContext>()
-				.AddDefaultUI()
-				.AddDefaultTokenProviders();
-
-            builder.Services.AddTransient<IEmailSender,EmailSender>();
-
-			builder.Services.AddControllersWithViews();
-
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddApplicationServices(builder.Configuration);
 
             var app = builder.Build();
 

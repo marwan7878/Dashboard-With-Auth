@@ -1,6 +1,9 @@
 ﻿using Auth.Helpers;
+using Auth.Interfaces;
 using Auth.Models;
+using Auth.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NuGet.Common;
@@ -18,12 +21,14 @@ namespace Auth.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly JWT _jwt;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ApplicationDbContext _context;
 
-        public AuthService(UserManager<ApplicationUser> userManager , RoleManager<IdentityRole> roleManager, IOptions<JWT> jwt)
+        public AuthService(UserManager<ApplicationUser> userManager , RoleManager<IdentityRole> roleManager, IOptions<JWT> jwt, ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _jwt = jwt.Value;
+            _context = dbContext;
         }
 
         public async Task<Authentication> RegisterAsync(Register model)
@@ -135,6 +140,5 @@ namespace Auth.Services
 
             return result.Succeeded ? string.Empty : "Something went wrong";
         }
-
     }
 }

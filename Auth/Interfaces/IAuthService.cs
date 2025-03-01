@@ -1,7 +1,7 @@
 ﻿using Auth.Models;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace Auth.Services
+namespace Auth.Interfaces
 {
     public interface IAuthService
     {

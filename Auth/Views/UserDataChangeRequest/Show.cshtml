@@ -1,0 +1,47 @@
+﻿@model UserDataChangeRequestVM
+@{
+    ViewData["Title"] = "User Data Change Request";
+}
+
+
+<div class="row form-group justify-content-center">
+    <h1>@ViewData["Title"]</h1>
+    <hr />
+    <div class="col-md-6">
+        <div class="form-floating mb-3">
+            <input asp-for="CurrentData.FirstName" class="form-control" aria-required="true" placeholder="" maxlength="100" readonly />
+            <label asp-for="CurrentData.FirstName">FirstName</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input asp-for="CurrentData.LastName" class="form-control" aria-required="true" placeholder="" maxlength="100" readonly />
+            <label asp-for="CurrentData.LastName">LastName</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input asp-for="CurrentData.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" readonly />
+            <label asp-for="CurrentData.Email">Email</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input asp-for="CurrentData.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="" readonly />
+            <label asp-for="CurrentData.Username">User Name</label>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-floating mb-3">
+            <input asp-for="NewData.FirstName" class="form-control" aria-required="true" placeholder="" maxlength="100" readonly />
+            <label asp-for="NewData.FirstName">FirstName</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input asp-for="NewData.LastName" class="form-control" aria-required="true" placeholder="" maxlength="100" readonly />
+            <label asp-for="NewData.LastName">LastName</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input asp-for="NewData.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" readonly />
+            <label asp-for="NewData.Email">Email</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input asp-for="NewData.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="" readonly />
+            <label asp-for="NewData.Username">User Name</label>
+        </div>
+    </div>
+    <button type="button" class="w-100 btn btn-lg btn-secondary">Back</button>
+</div>

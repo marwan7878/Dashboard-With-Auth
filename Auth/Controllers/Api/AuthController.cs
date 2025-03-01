@@ -1,5 +1,5 @@
-﻿using Auth.Models;
-using Auth.Services;
+﻿using Auth.Interfaces;
+using Auth.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

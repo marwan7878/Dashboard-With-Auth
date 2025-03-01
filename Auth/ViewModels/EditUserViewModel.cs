@@ -1,5 +1,5 @@
-﻿using Auth.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace Auth.ViewModels
@@ -29,10 +29,8 @@ namespace Auth.ViewModels
         [Remote("CheckUsernameInEdit", "Users", AdditionalFields = "Id", ErrorMessage = "Email is already exists!")]
         public string Username { get; set; }
 
-        
-        [Display(Name = "Roles")]
-        [CheckBoxRequired]
-        public List<RoleViewModel> Roles { get; set; }
+        //public string Role { get; set; } 
+        //public List<SelectListItem>? Roles { get; set; } 
 
     }
 }
