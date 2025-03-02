@@ -39,18 +39,7 @@ namespace Auth.Controllers
 
         public async Task<IActionResult> Index()
         {
-            List<UserViewModel> users = await _userManager.Users.Select(user => new UserViewModel
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Username = user.UserName,
-                Email = user.Email,
-                Role = _userManager.GetRolesAsync(user).Result.FirstOrDefault(),
-                IsMine = user.Id == _userManager.GetUserId(HttpContext.User)
-            }).ToListAsync();
-
-            return View(users);
+            return View(_userService.GetAll());
         }
 
         [Authorize(Roles = "SuperAdmin,Admin")]
@@ -72,77 +61,26 @@ namespace Auth.Controllers
         }
 
         [Authorize(Roles = "SuperAdmin")]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            var roles = await _roleManager.Roles.Select(role => new RoleViewModel
-            {
-                RoleId = role.Id,
-                RoleName = role.Name
-            }).ToListAsync();
-            var viewModel = new AddUserViewModel
-            {
-                Roles = roles
-            };
-            return View(viewModel);
+            return View(_userService.LoadDataOfCreatePage());
         }
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Create(AddUserViewModel userVM)
         {
+            string baseUrl = $"{Request.Scheme}://{Request.Host}";
+            string changePasswordUrl = $"{baseUrl}/Identity/Account/Manage/ChangePassword";
+
             if (!ModelState.IsValid) return View(userVM);
 
-            var user = new ApplicationUser
-            {
-                UserName = userVM.Username,
-                Email = userVM.Email,
-                FirstName = userVM.FirstName,
-                LastName = userVM.LastName,
-            };
-            var result = await _userManager.CreateAsync(user, userVM.Password);
-
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("Roles", error.Description);
-                }
+            var result = await _userService.CreateUser(userVM, changePasswordUrl);
+            if (!result)
                 return View(userVM);
-            }
-
-            await _userManager.AddToRolesAsync(user, userVM.Roles.Where(r => r.IsSelected).Select(r => r.RoleName));
-
+            
             return RedirectToAction(nameof(Index));
         }
-        //remote attribute
-        public async Task<IActionResult> CheckEmail(string email)
-        {
-            if (await _userManager.FindByEmailAsync(email) == null)
-                return Json(true);
-            return Json(false);
-        }
-        public async Task<IActionResult> CheckUsername(string username)
-        {
-            if (await _userManager.FindByNameAsync(username) == null)
-                return Json(true);
-            return Json(false);
-        }
-
-        public async Task<IActionResult> CheckEmailInEdit(string email, string id)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user != null && user != await _userManager.FindByIdAsync(id))
-                return Json(false);
-            return Json(true);
-        }
-        public async Task<IActionResult> CheckUsernameInEdit(string username, string id)
-        {
-            var user = await _userManager.FindByNameAsync(username);
-            if (user != null && user != await _userManager.FindByIdAsync(id))
-                return Json(false);
-            return Json(true);
-        }
-
 
         [Authorize]
         public async Task<IActionResult> Edit(string userId)
@@ -217,20 +155,6 @@ namespace Auth.Controllers
             } 
             return View(model);
         }
-        public async Task<IActionResult> SendConfirmationEmail(string userEmail = "Marooo7878@outlook.com")
-        {
-            //string confirmationLink = Url.Action("ConfirmEmail", "Users", new { email = userEmail }, Request.Scheme);
-            string emailBody = $"<p>Please confirm your email by clicking <a href='{"confirmationLink"}'>here</a>.</p>";
-
-            await _emailService.SendEmailAsync(userEmail, "Confirm Your Email", emailBody);
-
-            return Content("Confirmation email sent!");
-        }
-
-        public IActionResult ConfirmEmail(string email)
-        {
-            return Content($"Email {email} confirmed successfully!");
-        }
 
         [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> DeleteAsync(string userId)
@@ -241,5 +165,36 @@ namespace Auth.Controllers
             return RedirectToAction(nameof(Index));
 
         }
+
+
+        #region remote attribute
+        public async Task<IActionResult> CheckEmail(string email)
+        {
+            if (await _userManager.FindByEmailAsync(email) == null)
+                return Json(true);
+            return Json(false);
+        }
+        public async Task<IActionResult> CheckUsername(string username)
+        {
+            if (await _userManager.FindByNameAsync(username) == null)
+                return Json(true);
+            return Json(false);
+        }
+
+        public async Task<IActionResult> CheckEmailInEdit(string email, string id)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null && user != await _userManager.FindByIdAsync(id))
+                return Json(false);
+            return Json(true);
+        }
+        public async Task<IActionResult> CheckUsernameInEdit(string username, string id)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            if (user != null && user != await _userManager.FindByIdAsync(id))
+                return Json(false);
+            return Json(true);
+        }
+        #endregion
     }
 }

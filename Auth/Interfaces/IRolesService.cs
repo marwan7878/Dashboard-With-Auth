@@ -6,6 +6,6 @@ namespace Auth.Interfaces
     public interface IRolesService
     {
         Task<IdentityRole> GetUserRoleByUserId(string userId);
-        List<SelectListItem> GetRolesInSelectList(string selected);
+        List<SelectListItem> GetRolesInSelectList(string? selected);
     }
 }

@@ -34,7 +34,7 @@ namespace Auth.Repositories
         {
             return _context.UnapprovedUsers.ToList();
         }
-        public bool Delete(string id)
+        public async Task<bool> Delete(string id)
         {
             try
             {

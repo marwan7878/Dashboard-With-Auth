@@ -27,9 +27,9 @@ namespace Auth.Controllers
         }
 
         [HttpPost]
-        public JsonResult Approve(string id)
+        public async Task<JsonResult> Approve(string id)
         {
-            _service.ApproveChangeRequest(id);
+            await _service.ApproveChangeRequestAsync(id);
             return Json(true);
         }
         public ActionResult Show(string id)

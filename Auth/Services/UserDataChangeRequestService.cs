@@ -1,8 +1,11 @@
 ﻿using Auth.Interfaces;
 using Auth.Models;
 using Auth.Repositories.Interfaces;
+using Auth.Services.Interfaces;
 using Auth.ViewModels;
+using Azure.Core;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Policy;
 
 namespace Auth.Services
 {
@@ -10,10 +13,12 @@ namespace Auth.Services
     {
         private readonly IUserDataChangeRequestRepository _repository;
         private readonly IUserService _userService;
-        public UserDataChangeRequestService(IUserDataChangeRequestRepository repository, IUserService userService)
+        private readonly IEmailService _emailService;
+        public UserDataChangeRequestService(IUserDataChangeRequestRepository repository, IUserService userService, IEmailService emailService)
         {
             _repository = repository;
             _userService = userService;
+            _emailService = emailService;
         }
 
         public List<UnapprovedUserData> GetAllUnapprovedUserDataAsync()
@@ -24,10 +29,10 @@ namespace Auth.Services
         {
             _repository.Delete(id);
         }
-        public void ApproveChangeRequest(string id)
+        public async Task ApproveChangeRequestAsync(string id)
         {
             var model = _repository.GetById(id);
-            _userService.UpdateUser(new EditUserViewModel
+            await _userService.UpdateUser(new EditUserViewModel
             {
                 Id = model.Id,
                 FirstName = model.FirstName,
@@ -35,7 +40,12 @@ namespace Auth.Services
                 Email = model.Email,
                 Username = model.Username,
             });
-            _repository.Delete(id);
+            await _repository.Delete(id);
+
+            string emailBody = $"<p>Congratulations, Your personal data change request has been approved by the admin !</p>";
+
+            await _emailService.SendEmailAsync(model.Email, "Change Request Approval", emailBody);
+
         }
         public async Task<UserDataChangeRequestVM> ShowChangeRequest(string id)
         {

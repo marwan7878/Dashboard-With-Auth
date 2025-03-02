@@ -39,22 +39,14 @@
                 <label asp-for="@Model.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="@Model.ConfirmPassword" class="text-danger"></span>
             </div>
-            <div class="mb-3">
-                <label asp-for="@Model.Roles">Roles</label><hr />
-                @for (int i = 0; i < Model.Roles.Count; i++)
-                {
-                    <div class="form-check m-1">
-                        <input type="hidden" asp-for="@Model.Roles[i].RoleName" />
-                        <input type="hidden" asp-for="@Model.Roles[i].RoleId" />
-
-                        <input class="form-check-input" asp-for="@Model.Roles[i].IsSelected" />
-                        <label class="form-check-label" asp-for="@Model.Roles[i].IsSelected">
-                            @Model.Roles[i].RoleName
-                        </label>
-                    </div>
-                }
+            <div class="form-floating mb-3">
+                <select asp-for="Role" asp-items="@Model.Roles" class="form-control">
+                    <option value="">-- Select a Role --</option>
+                </select>
+                <label asp-for="Role">Roles</label>
                 <span asp-validation-for="Roles" class="text-danger"></span>
             </div>
+
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Add</button>
         </form>
     </div>

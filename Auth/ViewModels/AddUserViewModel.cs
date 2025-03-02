@@ -1,5 +1,6 @@
 ﻿using Auth.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace Auth.ViewModels
@@ -40,8 +41,8 @@ namespace Auth.ViewModels
 
         
         [Display(Name = "Roles")]
-        [CheckBoxRequired]
-        public List<RoleViewModel> Roles { get; set; }
+        public List<SelectListItem>? Roles { get; set; }
+        public string Role { get; set; }
 
     }
 }

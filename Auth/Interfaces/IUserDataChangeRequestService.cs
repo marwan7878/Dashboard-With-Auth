@@ -8,7 +8,7 @@ namespace Auth.Interfaces
         bool AddChangeRequest(EditUserViewModel model);
         List<UnapprovedUserData> GetAllUnapprovedUserDataAsync();
         void RejectChangeRequest(string id);
-        void ApproveChangeRequest(string id);
+        Task ApproveChangeRequestAsync(string id);
         Task<UserDataChangeRequestVM> ShowChangeRequest(string id);
     }
 }

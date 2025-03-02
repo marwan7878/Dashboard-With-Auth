@@ -7,14 +7,46 @@ namespace Auth.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         public UserRepository(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
             _userManager = userManager;
         }
 
+        public List<UserViewModel> GetAll()
+        {
+            return _userManager.Users
+                .Select(user => new UserViewModel
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Username = user.UserName,
+                    Role = _userManager.GetRolesAsync(user).Result.FirstOrDefault()
+                })
+                .ToList();
+        }
+        public async Task<bool> CreateAsync(AddUserViewModel model)
+        {
+            try
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = model.Username,
+                    Email = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                };
+                await _userManager.CreateAsync(user, model.Password);
+                await _userManager.AddToRoleAsync(user, model.Role);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public async Task<bool> Update(EditUserViewModel model)
         {
             try

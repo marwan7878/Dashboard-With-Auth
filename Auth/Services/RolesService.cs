@@ -16,7 +16,7 @@ namespace Auth.Services
             _userManager = userManager;
         }
 
-        public List<SelectListItem> GetRolesInSelectList(string selected)
+        public List<SelectListItem> GetRolesInSelectList(string? selected)
         {
             var roles = _roleManager.Roles.ToList();
             return roles.Select(r => new SelectListItem
