@@ -2,13 +2,14 @@
 using Auth.Repositories.Interfaces;
 using Auth.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace Auth.Repositories
 {
     public class UserRepository : IUserRepository
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        public UserRepository(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public UserRepository(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
         }
@@ -60,6 +61,12 @@ namespace Auth.Repositories
                 user.Email = model.Email;
                 user.UserName = model.Username;
                 await _userManager.UpdateAsync(user);
+                if (model.Role != null)
+                {
+                    var oldRole = _userManager.GetRolesAsync(user).Result.FirstOrDefault();
+                    await _userManager.RemoveFromRoleAsync(user, oldRole);
+                    await _userManager.AddToRoleAsync(user, model.Role);
+                }
                 return true;
             }
             catch

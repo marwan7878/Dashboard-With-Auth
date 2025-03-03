@@ -9,11 +9,9 @@ namespace Auth.Repositories
     public class UserDataChangeRequestRepository : IUserDataChangeRequestRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        public UserDataChangeRequestRepository(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public UserDataChangeRequestRepository(ApplicationDbContext context)
         {
             _context = context;
-            _userManager = userManager;
         }
 
         public async Task<bool> SaveAsync(UnapprovedUserData model)
@@ -34,7 +32,7 @@ namespace Auth.Repositories
         {
             return _context.UnapprovedUsers.ToList();
         }
-        public async Task<bool> Delete(string id)
+        public bool Delete(string id)
         {
             try
             {

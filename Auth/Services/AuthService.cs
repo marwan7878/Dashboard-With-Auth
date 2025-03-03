@@ -1,6 +1,6 @@
 ﻿using Auth.Helpers;
-using Auth.Interfaces;
 using Auth.Models;
+using Auth.Services.Interfaces;
 using Auth.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

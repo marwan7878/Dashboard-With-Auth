@@ -1,5 +1,5 @@
-﻿using Auth.Interfaces;
-using Auth.Models;
+﻿using Auth.Models;
+using Auth.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 

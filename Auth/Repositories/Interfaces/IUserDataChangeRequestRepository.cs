@@ -7,7 +7,7 @@ namespace Auth.Repositories.Interfaces
     {
         Task<bool> SaveAsync(UnapprovedUserData model);
         List<UnapprovedUserData> GetAll();
-        Task<bool> Delete(string id);
+        bool Delete(string id);
         UnapprovedUserData GetById(string id);
     }
 }

@@ -1,4 +1,4 @@
-﻿using Auth.Interfaces;
+﻿using Auth.Enums;
 using Auth.Models;
 using Auth.Repositories.Interfaces;
 using Auth.Services.Interfaces;
@@ -15,11 +15,14 @@ namespace Auth.Services
         private readonly IUserRepository _repository;
         private readonly IRolesService _rolesService;
         private readonly IEmailService _emailService;
-        public UserService(IUserRepository repository, IRolesService rolesService, IEmailService emailService)
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public UserService(IUserRepository repository, IRolesService rolesService, IEmailService emailService, RoleManager<IdentityRole> roleManager)
         {
             _repository = repository;
             _rolesService = rolesService;
             _emailService = emailService;
+            _roleManager = roleManager;
         }
         public List<UserViewModel> GetAll()
         {
@@ -51,6 +54,34 @@ namespace Auth.Services
             return new AddUserViewModel
             {
                 Roles = _rolesService.GetRolesInSelectList("0")
+            };
+        }
+        public EditUserViewModel LoadDataOfEditPage(string id)
+        {
+            var user = _repository.GetByIdAsync(id).Result;
+            var userRole = _rolesService.GetUserRoleByUserId(user.Id).Result;
+            return new EditUserViewModel
+            {
+                Id = id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Username = user.Username,
+                Email = user.Email,
+                Roles = _rolesService.GetRolesInSelectList(userRole.Id)
+            };
+        }
+        public ReadUserViewModel LoadDataOfReadPage(string id)
+        {
+            var user = _repository.GetByIdAsync(id).Result;
+            var roles = _roleManager.Roles.ToList();
+            return new ReadUserViewModel
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Username = user.Username,
+                Role = roles.Select(r => r.Name).FirstOrDefault()
             };
         }
         public Task<UnapprovedUserData> GetUser(string id)

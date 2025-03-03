@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Auth.Interfaces
+namespace Auth.Services.Interfaces
 {
     public interface IRolesService
     {

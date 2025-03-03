@@ -1,5 +1,4 @@
-﻿using Auth.Interfaces;
-using Auth.Models;
+﻿using Auth.Models;
 using Auth.Repositories.Interfaces;
 using Auth.Services.Interfaces;
 using Auth.ViewModels;
@@ -40,7 +39,7 @@ namespace Auth.Services
                 Email = model.Email,
                 Username = model.Username,
             });
-            await _repository.Delete(id);
+            _repository.Delete(id);
 
             string emailBody = $"<p>Congratulations, Your personal data change request has been approved by the admin !</p>";
 

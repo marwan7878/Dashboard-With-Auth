@@ -1,7 +1,7 @@
 ﻿using Auth.Models;
 using Auth.ViewModels;
 
-namespace Auth.Interfaces
+namespace Auth.Services.Interfaces
 {
     public interface IUserDataChangeRequestService
     {

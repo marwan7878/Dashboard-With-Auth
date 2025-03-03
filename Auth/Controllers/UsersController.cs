@@ -1,16 +1,10 @@
 ﻿using Auth.Enums;
-using Auth.Interfaces;
 using Auth.Models;
-using Auth.Services;
 using Auth.Services.Interfaces;
 using Auth.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Security.Cryptography;
 
 namespace Auth.Controllers
 {
@@ -18,46 +12,28 @@ namespace Auth.Controllers
     public class UsersController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRolesService _rolesService;
-        private readonly IAuthService _authService;
         private readonly IUserService _userService;
         private readonly IUserDataChangeRequestService _changeRequestService;
-        private readonly IEmailService _emailService;
-        public UsersController(IEmailService emailService, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor, IRolesService rolesService, IAuthService authService, IUserService userService, IUserDataChangeRequestService changeRequestService)
+        public UsersController(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, IRolesService rolesService, IUserService userService, IUserDataChangeRequestService changeRequestService)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
             _httpContextAccessor = httpContextAccessor;
             _rolesService = rolesService;
-            _authService = authService;
             _userService = userService;
             _changeRequestService = changeRequestService;
-            _emailService = emailService;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             return View(_userService.GetAll());
         }
 
         [Authorize(Roles = "SuperAdmin,Admin")]
-        public async Task<IActionResult> Read(string userId)
+        public IActionResult Read(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            var roles = await _roleManager.Roles.ToListAsync();
-
-            var userVM = new ReadUserViewModel
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Username = user.UserName,
-                Role = roles.Select(r => r.Name).FirstOrDefault()
-            };
-            return View(userVM);
+            return View(_userService.LoadDataOfReadPage(userId));
         }
 
         [Authorize(Roles = "SuperAdmin")]
@@ -85,48 +61,33 @@ namespace Auth.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
             var userRole = _rolesService.GetUserRoleByUserId(userId).Result;
             var loggedinUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             var loggedinUserRole = _rolesService.GetUserRoleByUserId(loggedinUser.Id).Result;
-            var roles = await _roleManager.Roles.ToListAsync();
+            TempData["PendingRequest"] = false;
 
-            if (loggedinUserRole.Name == Roles.SuperAdmin.ToString())
+            if (loggedinUserRole.Name == Roles.SuperAdmin.ToString() && loggedinUser.Id == userId)
             {
-                var userVM = new EditUserViewModel
-                {
-                    Id = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    Username = user.UserName
-                };
-                return View(userVM);
+                var model = _userService.LoadDataOfEditPage(userId);
+                model.Roles = null;
+                return View(model);
+            }
+            else if (loggedinUserRole.Name == Roles.SuperAdmin.ToString())
+            {
+                return View(_userService.LoadDataOfEditPage(userId));
             }
             else if (userRole.Name == Roles.Admin.ToString() && loggedinUser.Id == userId)
             {
-                var userVM = new EditUserViewModel
-                {
-                    Id = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    Username = user.UserName
-                };
-                return View(userVM);
+                var model = _userService.LoadDataOfEditPage(userId);
+                model.Roles = null;
+                return View(model);
             }
             else if (userRole.Name == Roles.Employee.ToString() && loggedinUser.Id == userId)
             {
-                var userVM = new EditUserViewModel
-                {
-                    Id = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    Username = user.UserName
-                };
                 TempData["PendingRequest"] = true;
-                return View(userVM);
+                var model = _userService.LoadDataOfEditPage(userId);
+                model.Roles = null;
+                return View(model);
             }
             else
             {
