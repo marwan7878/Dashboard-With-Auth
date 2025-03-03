@@ -5,6 +5,7 @@ using Auth.Services.Interfaces;
 using Auth.ViewModels;
 using Azure.Core;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Policy;
 
@@ -16,13 +17,15 @@ namespace Auth.Services
         private readonly IRolesService _rolesService;
         private readonly IEmailService _emailService;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserService(IUserRepository repository, IRolesService rolesService, IEmailService emailService, RoleManager<IdentityRole> roleManager)
+        public UserService(IUserRepository repository, IRolesService rolesService, IEmailService emailService, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             _repository = repository;
             _rolesService = rolesService;
             _emailService = emailService;
             _roleManager = roleManager;
+            _userManager = userManager;
         }
         public List<UserViewModel> GetAll()
         {
@@ -92,5 +95,35 @@ namespace Auth.Services
         {
             return await _repository.DeleteAsync(id);
         }
+
+        #region remote attribute
+        public async Task<bool> CheckEmail(string email)
+        {
+            if (await _userManager.FindByEmailAsync(email) == null)
+                return true;
+            return false;
+        }
+        public async Task<bool> CheckUsername(string username)
+        {
+            if (await _userManager.FindByNameAsync(username) == null)
+                return true;
+            return false;
+        }
+
+        public async Task<bool> CheckEmailInEdit(string email, string id)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null && user != await _userManager.FindByIdAsync(id))
+                return false;
+            return true;
+        }
+        public async Task<bool> CheckUsernameInEdit(string username, string id)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            if (user != null && user != await _userManager.FindByIdAsync(id))
+                return false;
+            return true;
+        }
+        #endregion
     }
 }

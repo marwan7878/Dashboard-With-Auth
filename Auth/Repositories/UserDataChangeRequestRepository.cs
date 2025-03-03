@@ -1,4 +1,5 @@
 ﻿using Auth.Models;
+using Auth.Models.Contexts;
 using Auth.Repositories.Interfaces;
 using Auth.ViewModels;
 using Microsoft.AspNetCore.Identity;

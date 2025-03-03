@@ -1,6 +1,6 @@
-﻿namespace Auth.Models
+﻿namespace Auth.ViewModels
 {
-    public class Authentication
+    public class AuthenticationViewModel
     {
         public string Message { get; set; }
 
@@ -8,7 +8,7 @@
 
         public string Email { get; set; }
 
-        public List<string> Roles { get; set;}
+        public List<string> Roles { get; set; }
 
         public string Token { get; set; }
 

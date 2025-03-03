@@ -30,3 +30,5 @@ namespace Auth.Data.Migrations
         }
     }
 }
+
+

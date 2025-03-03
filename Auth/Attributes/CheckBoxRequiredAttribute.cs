@@ -1,18 +1,18 @@
 ﻿using Auth.ViewModels;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
 
-namespace Auth.Models
+namespace Auth.Attributes
 {
     public class CheckBoxRequiredAttribute : ValidationAttribute
     {
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
-            var roles = (List<RoleViewModel>)value;
-            if(roles.Any(r=>r.IsSelected))
+            if (value != null)
             {
                 return ValidationResult.Success;
             }
-            return new ValidationResult("Select at least one role!!");
+            return new ValidationResult("Select role!!");
         }
     }
 }

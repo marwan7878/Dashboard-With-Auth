@@ -1,13 +1,12 @@
-﻿using Auth.Models;
+﻿using Auth.ViewModels;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Auth.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<Authentication> RegisterAsync(Register model);
-        Task<Authentication> GetTokenAsync(TokenRequest model);
-        Task<JwtSecurityToken> CreateJwtToken(ApplicationUser user);
-        Task<string> AssignRoleAsync(AssignRole model);
+        Task<AuthenticationViewModel> GetTokenAsync(TokenRequestViewModel model);
+        Task<JwtSecurityToken> CreateJwtToken(string email);
+        Task<string> AssignRoleAsync(AssignRoleViewModel model);
     }
 }

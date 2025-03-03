@@ -13,5 +13,10 @@ namespace Auth.Services.Interfaces
         ReadUserViewModel LoadDataOfReadPage(string id);
         Task<UnapprovedUserData> GetUser(string id);
         Task<bool> DeleteUser(string id);
+        Task<bool> CheckEmail(string email);
+        Task<bool> CheckUsername(string username);
+        Task<bool> CheckEmailInEdit(string email, string id);
+        Task<bool> CheckUsernameInEdit(string username, string id);
+
     }
 }

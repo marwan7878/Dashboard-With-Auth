@@ -1,5 +1,6 @@
 ﻿using Auth.Helpers;
 using Auth.Models;
+using Auth.Models.Contexts;
 using Auth.Repositories;
 using Auth.Repositories.Interfaces;
 using Auth.Services;

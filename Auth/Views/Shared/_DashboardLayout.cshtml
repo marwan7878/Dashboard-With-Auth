@@ -40,7 +40,7 @@
                 <li class="nav-item">
                     <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                 </li>
-                
+
             </ul>
 
             <!-- Right navbar links -->
@@ -62,7 +62,7 @@
 
             <!-- Sidebar -->
             <div class="sidebar">
-                
+
                 <!-- SidebarSearch Form -->
                 <div class="form-inline mt-3">
                     <div class="input-group" data-widget="sidebar-search">
@@ -103,46 +103,34 @@
                                         <p>Create New</p>
                                     </a>
                                 </li>
-                                
+
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a asp-controller="UserDataChangeRequest" asp-action="Index" class="nav-link">
                                 <i class="nav-icon fas fa-info"></i>
                                 <p>
                                     Change Requests
-                                    <i class="fas fa-angle-left right"></i>
                                 </p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a asp-controller="UserDataChangeRequest" asp-action="Index" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View All</p>
-                                    </a>
-
-                                </li>
-
-                            </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a asp-controller="Roles" asp-action="Index" class="nav-link">
                                 <i class="nav-icon fas fa-universal-access"></i>
                                 <p>
                                     Roles
-                                    <i class="fas fa-angle-left right"></i>
                                 </p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a asp-controller="Roles" asp-action="Index" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View All</p>
-                                    </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/swagger/index.html" class="nav-link">
+                                <i class="nav-icon fas fa-link"></i>
+                                <p>
+                                    Swagger UI
+                                </p>
 
-                                </li>
-
-                            </ul>
+                            </a>
+                            
                         </li>
                     </ul>
                 </nav>

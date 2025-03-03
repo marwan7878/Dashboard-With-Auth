@@ -1,9 +1,11 @@
 ﻿using Auth.Models;
 using Auth.Services.Interfaces;
+using Auth.ViewModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Auth.Controllers.Api
 {
@@ -12,28 +14,47 @@ namespace Auth.Controllers.Api
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+        private readonly IUserService _userService;
+        public AuthController(IAuthService authService, IUserService userService)
         {
             _authService = authService;
+            _userService = userService;
         }
 
         [Route("register")]
         [HttpPost]
-        public async Task<IActionResult> RegisterAsync([FromBody] Register model)
+        [HttpPost]
+        public async Task<IActionResult> RegisterAsync([FromBody] AddUserViewModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
-            var result = await _authService.RegisterAsync(model);
-            if(!result.IsAuthenticated)
-                return BadRequest(result.Message);
 
-            return Ok(result);
+            string baseUrl = $"{Request.Scheme}://{Request.Host}";
+            string changePasswordUrl = $"{baseUrl}/Identity/Account/Manage/ChangePassword";
+
+            var result = await _userService.CreateUser(model, changePasswordUrl);
+            if (!result)
+                return BadRequest("User registration failed."); 
+
+            var jwtSecurityToken = await _authService.CreateJwtToken(model.Email);
+            if (jwtSecurityToken == null)
+                return StatusCode(500, "Failed to generate authentication token."); 
+
+            var authentication = new AuthenticationViewModel
+            {
+                Email = model.Email,
+                ExpiresOn = jwtSecurityToken.ValidTo,
+                IsAuthenticated = true,
+                Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken)
+            };
+
+            return Ok(authentication);
         }
-        
+
+
         [Route("token")]
-        [HttpGet]
-        public async Task<IActionResult> GetTokenAsync([FromBody] TokenRequest model)
+        [HttpPost]
+        public async Task<IActionResult> GetTokenAsync([FromBody] TokenRequestViewModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -45,12 +66,13 @@ namespace Auth.Controllers.Api
 
             return Ok(result);
         }
+
         [Route("assignRole")]
         [HttpPost]
         //this is important line that make error
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [Authorize(Roles ="Admin")]
-        public async Task<IActionResult> AssignRoleAsync([FromBody] AssignRole model)
+        public async Task<IActionResult> AssignRoleAsync([FromBody] AssignRoleViewModel model)
         {
             if(!ModelState.IsValid) return BadRequest(ModelState);
 

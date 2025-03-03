@@ -1,4 +1,5 @@
-﻿using Auth.Models;
+﻿using Auth.Attributes;
+using Auth.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
@@ -39,9 +40,9 @@ namespace Auth.ViewModels
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
 
-        
         [Display(Name = "Roles")]
         public List<SelectListItem>? Roles { get; set; }
+        [Required]
         public string Role { get; set; }
 
     }
