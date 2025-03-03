@@ -10,5 +10,6 @@ namespace Auth.Models
         [Required, MaxLength(100)]
         public string LastName { get; set; }
         public byte[]? ProfilePicture { get; set; }
+        public bool IsPasswordChanged { get; set; } = false;
     }
 }

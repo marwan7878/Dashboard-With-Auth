@@ -1,14 +1,4 @@
 using Auth.Extensions;
-using Auth.Helpers;
-using Auth.Models;
-using Auth.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Configuration;
-using System.Text;
 
 namespace Auth
 {
@@ -22,8 +12,10 @@ namespace Auth
 
             var app = builder.Build();
 
-			// Configure the HTTP request pipeline.
-			if (app.Environment.IsDevelopment())
+            app.UseSession();
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
 			{
 				app.UseMigrationsEndPoint();
                 app.UseSwagger();
@@ -44,8 +36,10 @@ namespace Auth
 			app.UseAuthentication();
 
 			app.UseAuthorization();
+            app.UseMiddleware<ForcePasswordChangeMiddleware>();
 
-			app.MapControllerRoute(
+
+            app.MapControllerRoute(
 				name: "default",
 				pattern: "{controller=Home}/{action=Index}/{id?}");
 			app.MapRazorPages();

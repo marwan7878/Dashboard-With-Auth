@@ -119,10 +119,14 @@ namespace Auth.Areas.Identity.Pages.Account.Manage
             }
 
             await _signInManager.RefreshSignInAsync(user);
+            user.IsPasswordChanged = true;
+            await _userManager.UpdateAsync(user);
             _logger.LogInformation("User changed their password successfully.");
             StatusMessage = "Your password has been changed.";
 
-            return RedirectToPage();
+            await _signInManager.SignOutAsync();
+
+            return RedirectToPage("/Identity/Account/Login"); 
         }
     }
 }
