@@ -17,6 +17,7 @@ namespace Auth.Data.Migrations
                 type: "bit",
                 nullable: false,
                 defaultValue: false);
+            migrationBuilder.Sql("UPDATE [Security].[Users] SET [IsPasswordChanged] = 1 WHERE Id = N'2b723733-db64-4941-ad51-b9a6cd6a7ed4'");
         }
 
         /// <inheritdoc />
