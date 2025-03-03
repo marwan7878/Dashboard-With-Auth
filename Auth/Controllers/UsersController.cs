@@ -129,22 +129,34 @@ namespace Auth.Controllers
 
 
         #region remote attribute
-        public IActionResult CheckEmail(string email)
+        
+        public async Task<IActionResult> CheckEmail(string email)
         {
-            return Json(_userService.CheckEmail(email));
+            if (await _userManager.FindByEmailAsync(email) == null)
+                return Json(true);
+            return Json(false);
         }
-        public IActionResult CheckUsername(string username)
+        public async Task<IActionResult> CheckUsername(string username)
         {
-            return Json(CheckUsername(username));
+            if (await _userManager.FindByNameAsync(username) == null)
+                return Json(true);
+            return Json(false);
         }
 
-        public IActionResult CheckEmailInEdit(string email, string id)
+        
+        public async Task<IActionResult> CheckEmailInEdit(string email, string id)
         {
-            return Json(CheckEmailInEdit(email, id));
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null && user != await _userManager.FindByIdAsync(id))
+                return Json(false);
+            return Json(true);
         }
-        public IActionResult CheckUsernameInEdit(string username, string id)
+        public async Task<IActionResult> CheckUsernameInEdit(string username, string id)
         {
-            return Json(CheckUsernameInEdit(username, id));
+            var user = await _userManager.FindByNameAsync(username);
+            if (user != null && user != await _userManager.FindByIdAsync(id))
+                return Json(false);
+            return Json(true);
         }
         #endregion
     }

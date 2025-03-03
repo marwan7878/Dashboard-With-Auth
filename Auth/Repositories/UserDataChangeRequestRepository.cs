@@ -19,9 +19,11 @@ namespace Auth.Repositories
         {
             try
             {
-                _context.UnapprovedUsers.Remove(model);
-                await _context.UnapprovedUsers.AddAsync(model);
-                await _context.SaveChangesAsync();
+                var oldRequest = _context.UnapprovedUsers.FirstOrDefaultAsync(u => u.Id == model.Id).Result;
+                if (oldRequest != null)
+                    _context.UnapprovedUsers.Remove(oldRequest);
+                _context.UnapprovedUsers.Add(model);
+                _context.SaveChanges();
                 return true;
             }
             catch

@@ -1,4 +1,5 @@
-﻿using Auth.Models;
+﻿using Auth.DTOs;
+using Auth.Models;
 using Auth.Services.Interfaces;
 using Auth.ViewModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,7 +25,7 @@ namespace Auth.Controllers.Api
         [Route("register")]
         [HttpPost]
         [HttpPost]
-        public async Task<IActionResult> RegisterAsync([FromBody] AddUserViewModel model)
+        public async Task<IActionResult> RegisterAsync([FromBody]AddUserDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -32,7 +33,17 @@ namespace Auth.Controllers.Api
             string baseUrl = $"{Request.Scheme}://{Request.Host}";
             string changePasswordUrl = $"{baseUrl}/Identity/Account/Manage/ChangePassword";
 
-            var result = await _userService.CreateUser(model, changePasswordUrl);
+            var addUserModel = new AddUserViewModel
+            {
+                FirstName =  model.FirstName,
+                LastName = model.LastName,
+                Email = model.Email,
+                Username = model.Username,
+                Password = model.Password,
+                ConfirmPassword = model.ConfirmPassword,
+                Role = model.Role,
+            };
+            var result = await _userService.CreateUser(addUserModel, changePasswordUrl);
             if (!result)
                 return BadRequest("User registration failed."); 
 

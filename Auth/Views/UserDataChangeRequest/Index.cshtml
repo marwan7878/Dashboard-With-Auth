@@ -26,8 +26,8 @@
                 <td>@user.Username</td>
                 <td>@user.Email</td>
                 <td>
-                    <button type="button" class="btn btn-success mx-2 col-sm-2" onclick="approveUser('@user.Id')">Approve</button>
-                    <button type="button" class="btn btn-danger mx-2 col-sm-2" onclick="rejectUser('@user.Id')">Reject</button>
+                    <button type="button" class="btn btn-success mx-2 col-sm-3" onclick="approveUser('@user.Id')">Approve</button>
+                    <button type="button" class="btn btn-danger mx-2 col-sm-3" onclick="rejectUser('@user.Id')">Reject</button>
                     <a class="btn btn-primary" asp-controller="UserDataChangeRequest" asp-action="Show" asp-route-id="@user.Id">Show</a>
                 </td>
             </tr>
