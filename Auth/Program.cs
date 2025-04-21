@@ -9,7 +9,9 @@ namespace Auth
 			var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddApplicationServices(builder.Configuration);
-
+            builder.Services.AddJWTAndAuthServices(builder.Configuration);
+            builder.Services.InjectServices(builder.Configuration);
+			
             var app = builder.Build();
 
             app.UseSession();
@@ -34,15 +36,15 @@ namespace Auth
 			app.UseRouting();
 			
 			app.UseAuthentication();
-
 			app.UseAuthorization();
+
             app.UseMiddleware<ForcePasswordChangeMiddleware>();
 
+			app.MapRazorPages();
 
             app.MapControllerRoute(
 				name: "default",
 				pattern: "{controller=Home}/{action=Index}/{id?}");
-			app.MapRazorPages();
 
 			app.Run();
 		}

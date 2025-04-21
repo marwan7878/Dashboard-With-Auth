@@ -22,32 +22,7 @@ namespace Auth.Extensions
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
             services.AddDatabaseDeveloperPageExceptionFilter();
-            services.Configure<JWT>(configuration.GetSection("JWT"));
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(o =>
-            {
-                o.RequireHttpsMetadata = false;
-                o.SaveToken = false;
-                o.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidIssuer = configuration["JWT:Issuer"],
-                    ValidAudience = configuration["JWT:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]))
-                };
-            }
-            );
-
-            services.AddIdentity<ApplicationUser, IdentityRole>(/*options => options.SignIn.RequireConfirmedAccount=true*/)
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultUI()
-                .AddDefaultTokenProviders();
+            services.AddRazorPages();
             services.AddControllersWithViews();
             services.AddSwaggerGen();
             services.AddDistributedMemoryCache();
@@ -57,17 +32,6 @@ namespace Auth.Extensions
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
-
-
-
-            services.AddSingleton<IEmailService, EmailService>();
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IRolesService, RolesService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IUserDataChangeRequestService, UserDataChangeRequestService>();
-            services.AddScoped<IUserDataChangeRequestRepository, UserDataChangeRequestRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
-            
 
             return services;
         }

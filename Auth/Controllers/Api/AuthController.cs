@@ -12,6 +12,8 @@ namespace Auth.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -21,11 +23,16 @@ namespace Auth.Controllers.Api
             _authService = authService;
             _userService = userService;
         }
-
+        [Route("all")]
+        [HttpGet]
+        public IActionResult Index()
+        {
+            //return NotFound();
+            return Ok(_userService.GetAll());
+        }
         [Route("register")]
         [HttpPost]
-        [HttpPost]
-        public async Task<IActionResult> RegisterAsync([FromBody]AddUserDto model)
+        public async Task<IActionResult> RegisterAsync([FromBody] AddUserDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -35,7 +42,7 @@ namespace Auth.Controllers.Api
 
             var addUserModel = new AddUserViewModel
             {
-                FirstName =  model.FirstName,
+                FirstName = model.FirstName,
                 LastName = model.LastName,
                 Email = model.Email,
                 Username = model.Username,
@@ -45,11 +52,11 @@ namespace Auth.Controllers.Api
             };
             var result = await _userService.CreateUser(addUserModel, changePasswordUrl);
             if (!result)
-                return BadRequest("User registration failed."); 
+                return BadRequest("User registration failed.");
 
             var jwtSecurityToken = await _authService.CreateJwtToken(model.Email);
             if (jwtSecurityToken == null)
-                return StatusCode(500, "Failed to generate authentication token."); 
+                return StatusCode(500, "Failed to generate authentication token.");
 
             var authentication = new AuthenticationViewModel
             {
@@ -65,14 +72,15 @@ namespace Auth.Controllers.Api
 
         [Route("token")]
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> GetTokenAsync([FromBody] TokenRequestViewModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
+
             var result = await _authService.GetTokenAsync(model);
 
-            if(!result.IsAuthenticated)
+            if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
 
             return Ok(result);
@@ -82,17 +90,17 @@ namespace Auth.Controllers.Api
         [HttpPost]
         //this is important line that make error
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AssignRoleAsync([FromBody] AssignRoleViewModel model)
         {
-            if(!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var result = await _authService.AssignRoleAsync(model);
 
             if (!result.IsNullOrEmpty())
                 return BadRequest(result);
             return Ok(model);
-            
+
         }
     }
 }
