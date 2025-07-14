@@ -30,6 +30,7 @@ namespace Auth.Authorization
 
             var result = await _authorizationService.AuthorizeAsync(context.HttpContext.User, null, policyName);
 
+            
             if (!result.Succeeded)
             {
                 context.Result = new ForbidResult(); // or RedirectToAction("AccessDenied")

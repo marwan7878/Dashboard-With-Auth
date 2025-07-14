@@ -1,3 +1,4 @@
+using Auth.Authorization;
 using Auth.Helpers;
 using Auth.Models;
 using Auth.Services;
@@ -23,13 +24,13 @@ namespace Auth
 			builder.Services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseSqlServer(connectionString));
 			builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-            
-			builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("HomeIndex", policy => policy.RequireClaim("HomeIndex"));
-            });
 
+            
+			// for custom authorization
+            builder.Services.AddSingleton<IAuthorizationPolicyProvider, DynamicAuthorizationPolicyProvider>();
             builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
+
 
 
             builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
