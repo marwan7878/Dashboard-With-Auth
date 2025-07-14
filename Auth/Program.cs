@@ -2,8 +2,10 @@ using Auth.Helpers;
 using Auth.Models;
 using Auth.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -24,9 +26,10 @@ namespace Auth
             
 			builder.Services.AddAuthorization(options =>
             {
-                options.AddPolicy("FirstClaim", policy => policy.RequireClaim("FirstClaim"));
+                options.AddPolicy("HomeIndex", policy => policy.RequireClaim("HomeIndex"));
             });
 
+            builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
 
             builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));

@@ -1,3 +1,4 @@
+using Auth.Authorization;
 using Auth.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,25 +6,25 @@ using System.Diagnostics;
 
 namespace Auth.Controllers
 {
-	[Authorize]
-	public class HomeController : Controller
-	{
-		private readonly ILogger<HomeController> _logger;
+    [Authorize]
+    [AutoAuthorize]
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
 
-		public HomeController(ILogger<HomeController> logger)
-		{
-			_logger = logger;
-		}
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
 
-		[Authorize(policy: "FirstClaim")]
-		public IActionResult Index()
-		{
-			return View();
-		}
+        public IActionResult Index()
+        {
+            return View();
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-		public IActionResult Error()
-		{
-			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-		}
-	}
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
 }
