@@ -21,8 +21,15 @@ namespace Auth
 			builder.Services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseSqlServer(connectionString));
 			builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+            
+			builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("FirstClaim", policy => policy.RequireClaim("FirstClaim"));
+            });
 
-			builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+
+
+            builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 			builder.Services.AddScoped<IAuthService, AuthService>();
 			builder.Services.AddAuthentication(options =>
 			{
