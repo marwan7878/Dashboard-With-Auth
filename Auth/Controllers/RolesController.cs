@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 namespace Auth.Controllers
 {
     [AutoAuthorize]
-
     public class RolesController:Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
