@@ -1,4 +1,5 @@
-﻿using Auth.ViewModels;
+﻿using Auth.Authorization;
+using Auth.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Controllers
 {
+    [AutoAuthorize]
 
     public class RolesController:Controller
     {

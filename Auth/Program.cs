@@ -29,6 +29,7 @@ namespace Auth
 			// for custom authorization
             builder.Services.AddSingleton<IAuthorizationPolicyProvider, DynamicAuthorizationPolicyProvider>();
             builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
 
 
 

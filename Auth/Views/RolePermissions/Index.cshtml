@@ -1,0 +1,13 @@
+﻿@model List<IdentityRole>
+
+<h2>Roles</h2>
+
+<ul>
+    @foreach (var role in Model)
+    {
+        <li>
+            @role.Name |
+            <a asp-action="Manage" asp-route-roleName="@role.Name">Manage Permissions</a>
+        </li>
+    }
+</ul>

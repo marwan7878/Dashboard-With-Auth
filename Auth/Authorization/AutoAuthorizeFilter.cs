@@ -26,7 +26,7 @@ namespace Auth.Authorization
             if (controller == null || action == null)
                 return;
 
-            var policyName = $"{controller}{action}";
+            var policyName = $"{controller}.{action}";
 
             var result = await _authorizationService.AuthorizeAsync(context.HttpContext.User, null, policyName);
 

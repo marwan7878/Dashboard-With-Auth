@@ -23,7 +23,7 @@ namespace Auth.Authorization
             // Build a policy dynamically based on the name
             var policy = new AuthorizationPolicyBuilder();
             policy.RequireAuthenticatedUser(); // optional
-            policy.RequireClaim("Permission", policyName); // dynamic requirement based on name
+            policy.RequireClaim("permission", policyName); // dynamic requirement based on name
             return Task.FromResult(policy.Build());
         }
     }
