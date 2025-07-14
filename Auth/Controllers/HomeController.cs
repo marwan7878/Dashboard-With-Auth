@@ -6,7 +6,6 @@ using System.Diagnostics;
 
 namespace Auth.Controllers
 {
-    [Authorize]
     [AutoAuthorize]
     public class HomeController : Controller
     {
